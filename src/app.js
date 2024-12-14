@@ -13,7 +13,8 @@ const server = http.createServer(app);
 const io = new Server(server);
 
 app.use(cors());
-const {PORT} = process.env || 3000;
+const PORT = process.env.PORT || 3000;
+
 
 process.on("unhandledRejection", (reason) => {
   console.error("Unhandled Rejection at: ", reason.stack ?? reason);

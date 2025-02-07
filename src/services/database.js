@@ -69,7 +69,10 @@ async function getDriverInfoByEmail(email) {
   try {
     const client = await pool.connect();
 
-    const userRes = await client.query(`SELECT user_id, email, nome, telefone FROM users WHERE email = $1`, [email]);
+    const userRes = await client.query(`      SELECT u.user_id, u.email, u.nome, u.cpf, u.telefone, 
+      m.placa_veiculo, m.modelo_veiculo FROM users u
+      JOIN motoristas m ON u.user_id = m.user_id
+      WHERE u.email = $1`, [email]);
 
     if (userRes.rows.length === 0) {
       client.release();

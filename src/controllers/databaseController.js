@@ -491,6 +491,40 @@ async function deletePassenger(p_id, d_id) {
     return { statusCode: 200, body: res };
 }
 
+async function togglePayment(passageiro_id) {
+  if (!passageiro_id) {
+      throw new Error("O ID do passageiro é obrigatório.");
+  }
+
+  const client = await pool.connect();
+
+  try {
+      const result = await client.query(
+          "SELECT pago FROM passageiros WHERE passageiro_id = $1",
+          [passageiro_id]
+      );
+
+      if (result.rows.length === 0) {
+          throw new Error("Passageiro não encontrado.");
+      }
+
+      const novoEstado = result.rows[0].pago ? 0 : 1;
+
+      const updateResult = await client.query(
+          "UPDATE passageiros SET pago = $1 WHERE passageiro_id = $2 RETURNING pago",
+          [novoEstado, passageiro_id]
+      );
+
+      if (updateResult.rowCount === 0) {
+          throw new Error("Falha ao atualizar o pagamento.");
+      }
+
+      return updateResult.rows[0]; 
+  } finally {
+      client.release();
+  }
+}
+
 
 export {
     driverInfo,
@@ -520,4 +554,5 @@ export {
     enviarEmailParaAprovacao,
     getCalendarioInfo,
     passengerInfoId,
+    togglePayment
 }

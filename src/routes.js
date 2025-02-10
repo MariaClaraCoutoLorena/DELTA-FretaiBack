@@ -3,7 +3,7 @@ import  sgMail from '@sendgrid/mail';
 import * as dotenv from "dotenv";
 
 
-import { addDriverInvite, addPassengerUser, changePassword, driverInfo, driverInvites, driverUsers, driverUsers2, imagePath, login, passengerInfo, tables, updateUserPay, addNewUser, getRaceInfo, getDrivers, changeRacePassengerStatus, userType, fetchMessages, storeMessage, setCalendario, passengerInfoId, deletePassenger, getCalendarioInfo, enviarEmailParaAprovacao, aprovarCadastroMotorista, maxPassageiros, driverInfoChatBot } from "./controllers/databaseController.js";
+import { addDriverInvite, addPassengerUser, changePassword, driverInfo, driverInvites, driverUsers, driverUsers2, imagePath, login, passengerInfo, tables, updateUserPay, addNewUser, getRaceInfo, getDrivers, changeRacePassengerStatus, userType, fetchMessages, storeMessage, setCalendario, passengerInfoId, deletePassenger, getCalendarioInfo, enviarEmailParaAprovacao, aprovarCadastroMotorista, maxPassageiros, driverInfoChatBot, togglePayment } from "./controllers/databaseController.js";
 
 
 
@@ -366,16 +366,26 @@ router.get('/getCalendario/:passageiro_id/:rota_id/:year/:month/:day', async (re
 
 router.get("/driverInfoChatBot", async (req, res) => {
   try {
-    // Obtenha a resposta da função driverInfoChatBot
     const response = await driverInfoChatBot();
     
-    // Inclui o statusCode junto com o body
     res.json({ statusCode: response.statusCode, body: response.body });
   } catch (error) {
-    console.error("Erro ao processar a requisição:", error); // Log do erro
-    res.status(500).send(error); // Retorna o erro caso ocorra algum problema
+    console.error("Erro ao processar a requisição:", error); 
+    res.status(500).send(error); 
   }
 });
+
+router.put("/toggle-payment", async (req, res) => {
+  try {
+      const { passageiro_id } = req.body;
+      const result = await togglePayment(passageiro_id);
+      res.json({ success: true, passageiro_pagamento: result.pago });
+  } catch (error) {
+      console.error("Erro ao atualizar pagamento:", error.message);
+      res.status(500).json({ error: error.message });
+  }
+});
+
 
 
 export default router;
